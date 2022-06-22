@@ -2,7 +2,88 @@
 <html>
 
 <body>
-    <script src="script.js"></script>
+    <script>
+    const canvasID = "canvasNameHere";
+const canvasWidth = 1000;
+const canvasHeight = 1000;
+
+document.writeln("<canvas id=\"", canvasID, "\"width=\"", canvasWidth, "\" height=\"", canvasHeight, "\"></canvas>");
+
+let canvas = document.getElementById(canvasID);
+
+let drawingObject = canvas.getContext("2d");
+
+let image = drawingObject.createImageData(canvasWidth, canvasHeight);
+
+
+function setup() {
+
+    for (let x = 0; x < canvasWidth; x++) {
+        for (let y = 0; y < canvasHeight; y++) {
+            setPixel(x, y, Math.random() * 255, Math.random() * 255, Math.random() * 255, 255);
+        }
+    }
+
+    drawingObject.putImageData(image, 0, 0);
+}
+
+function loop() {
+
+    for (let x = 0; x < canvasWidth; x++) {
+        for (let y = 0; y < canvasHeight; y++) {
+            let pixel = getPixel(x, y);
+            let sum = { r: 0, g: 0, b: 0, a: 0 };
+            let pixelsVisited = 0;
+
+            for (let i = x - 1; i <= x + 1; i++) {
+                for (let j = y - 1; j <= y + 1; j++) {
+                    if (i >= 0 && i < canvasWidth && j >= 0 && j < canvasHeight && x != i && y != j) {
+                        let neighborPixel = getPixel(i, j);
+                        sum = { r: sum.r + neighborPixel.r, g: sum.g + neighborPixel.g, b: sum.b + neighborPixel.b, a: sum.a + neighborPixel.a };
+                        pixelsVisited++;
+                    }
+                }
+            }
+
+            let avarege = {
+                r: Math.round(sum.r / pixelsVisited),
+                g: Math.round(sum.g / pixelsVisited),
+                b: Math.round(sum.b / pixelsVisited),
+                a: Math.round(sum.a / pixelsVisited)
+            }
+
+
+            setPixel(x, y,
+                pixel.r + Math.round((avarege.r - pixel.r) / 1),
+                pixel.g + Math.round((avarege.g - pixel.g) / 1),
+                pixel.b + Math.round((avarege.b - pixel.b) / 1),
+                255);
+        }
+    }
+
+    drawingObject.putImageData(image, 0, 0);
+
+    return;
+}
+
+setup();
+setInterval(loop, 1000);
+
+function setPixel(x, y, r = 0, g = 0, b = 0, a = 255) {
+    image.data[(y * image.width + x) * 4 + 0] = r;
+    image.data[(y * image.width + x) * 4 + 1] = g;
+    image.data[(y * image.width + x) * 4 + 2] = b;
+    image.data[(y * image.width + x) * 4 + 3] = a;
+}
+
+function getPixel(x, y) {
+    return {
+        r: image.data[(y * image.width + x) * 4 + 0],
+        g: image.data[(y * image.width + x) * 4 + 1],
+        b: image.data[(y * image.width + x) * 4 + 2],
+        a: image.data[(y * image.width + x) * 4 + 3]
+    };
+}</script>
 </body>
 
 </html>
